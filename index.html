@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Quiz</h1>
+    <form id="quizForm">
+        <label for="question1">What is 2 + 2?</label><br>
+        <input type="radio" name="question1" value="3"> 3<br>
+        <input type="radio" name="question1" value="4"> 4<br>
+        <input type="radio" name="question1" value="5"> 5<br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const mainButton = window.Telegram.WebApp.MainButton;
+        mainButton.text = "Send Answer";
+        mainButton.show();
+
+        document.getElementById('quizForm').onsubmit = function(event) {
+            event.preventDefault();
+            const answer = document.querySelector('input[name="question1"]:checked').value;
+            window.Telegram.WebApp.sendData(answer);
+        };
+    </script>
+</body>
+</html>
