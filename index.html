@@ -16,37 +16,19 @@
     </form>
 
     <script>
-        document.getElementById('quizForm').addEventListener('submit', async (e) => {
+        document.getElementById('quizForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            const answer = document.querySelector('input[name="question1"]:checked').value;
             
-            const answer = document.querySelector('input[name="question1"]:checked')?.value;
-            if (!answer) {
-                alert('Пожалуйста, выберите ответ!');
-                return;
-            }
-    
-            const data = {
+            // Отправка данных через postEvent
+            Telegram.WebApp.postEvent('quiz_submitted', {
                 question: "What is 2 + 2?",
                 answer: answer,
-                timestamp: new Date().toISOString()
-            };
+                user: ctx.from.username // Если доступно
+            });
     
-            try {
-                // Отправляем данные через Telegram WebApp API
-                if (window.Telegram?.WebApp?.sendData) {
-                    Telegram.WebApp.sendData(JSON.stringify(data));
-                } else {
-                    console.log('Тестовый режим:', data);
-                    alert('Данные отправлены (заглушка): ' + JSON.stringify(data));
-                }
-                
-                // Закрываем приложение после отправки
-                Telegram.WebApp.close();
-                
-            } catch (error) {
-                console.error('Ошибка отправки:', error);
-                alert('Ошибка отправки данных!');
-            }
+            // Можно добавить подтверждение
+            Telegram.WebApp.showAlert('✅ Ответ сохранен!');
         });
     </script>
 </body>
