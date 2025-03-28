@@ -12,7 +12,7 @@
         <input type="radio" name="question1" value="3"> 3<br>
         <input type="radio" name="question1" value="4"> 4<br>
         <input type="radio" name="question1" value="5"> 5<br>
-        <button type="submit">Submit</button>
+        <button type="submit" id="btn_submit">Submit</button>
     </form>
 
     <script>
@@ -23,7 +23,11 @@
         document.getElementById('quizForm').onsubmit = function(event) {
             event.preventDefault();
             const answer = document.querySelector('input[name="question1"]:checked').value;
-            window.Telegram.WebApp.sendData(answer);
+            // window.Telegram.WebApp.sendData(answer);
+            Telegram.WebApp.postEvent('button_click', {
+                button_id: 'btn_submit',
+                user_data: answer
+            });
         };
     </script>
 </body>
