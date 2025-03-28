@@ -16,18 +16,38 @@
     </form>
 
     <script>
-        document.getElementById('quizForm').addEventListener('submit', (e) => {
+        async function sendDataToBot(data) {
+            // Способ 1: Используем postEvent если доступен
+            if (window.Telegram?.WebApp?.postEvent) {
+                Telegram.WebApp.postEvent('user_data', data);
+                return true;
+            }
+            
+            // Способ 2: Отправка через Fetch API
+            try {
+                const response = await fetch('https://quaint-prickly-ring.glitch.me/api/save-data', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Ошибка:', error);
+                return false;
+            }
+        }
+        
+        document.getElementById('quizForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const answer = document.querySelector('input[name="question1"]:checked').value;
             
-            // Отправка данных через postEvent
-            Telegram.WebApp.postEvent('quiz_submitted', {
-                question: "What is 2 + 2?",
-                answer: answer
-            });
-    
-            // Можно добавить подтверждение
-            Telegram.WebApp.showAlert('✅ Ответ сохранен!');
+            const result = await sendDataToBot({answer});
+            
+            if (result) {
+                Telegram.WebApp.showAlert('✅ Данные успешно сохранены!');
+            } else {
+                Telegram.WebApp.showAlert('⚠️ Ошибка сохранения!');
+            }
         });
     </script>
 </body>
