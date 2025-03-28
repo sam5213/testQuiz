@@ -16,37 +16,42 @@
     </form>
 
     <script>
-        async function sendDataToBot(data) {
-            // Способ 1: Используем postEvent если доступен
-            if (window.Telegram?.WebApp?.postEvent) {
-                Telegram.WebApp.postEvent('user_data', data);
-                return true;
-            }
-            
-            // Способ 2: Отправка через Fetch API
-            try {
-                const response = await fetch('https://quaint-prickly-ring.glitch.me/api/save-data', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                return response.ok;
-            } catch (error) {
-                console.error('Ошибка:', error);
-                return false;
-            }
-        }
-        
         document.getElementById('quizForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const answer = document.querySelector('input[name="question1"]:checked').value;
-            
-            const result = await sendDataToBot({answer});
-            
-            if (result) {
-                Telegram.WebApp.showAlert('✅ Данные успешно сохранены!');
-            } else {
-                Telegram.WebApp.showAlert('⚠️ Ошибка сохранения!');
+
+            // Формируем данные для отправки
+            const data = {
+                eventType: 'quiz_submitted',
+                eventData: {
+                    question: "What is 2 + 2?",
+                    answer: answer,
+                    user: `${Telegram.WebApp.initDataUnsafe.user.username}` || 'Unknown'
+                }
+            };
+
+            try {
+                // Отправляем данные через Fetch API
+                const response = await fetch('https://quaint-prickly-ring.glitch.me/api/quiz', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP! Статус: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('Ответ сервера:', result);
+
+                // Показываем подтверждение
+                Telegram.WebApp.showAlert('✅ Ответ сохранен!');
+            } catch (error) {
+                console.error('Ошибка при отправке данных:', error);
+                Telegram.WebApp.showAlert('⚠️ Произошла ошибка при отправке данных.');
             }
         });
     </script>
